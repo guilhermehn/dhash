@@ -1,29 +1,71 @@
-package main
+package dhash
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/disintegration/imaging"
-	"os"
+	"image/color"
+	"strings"
 )
 
-func main() {
-	// Check if a file was passed
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "usage: %s [image]\n", os.Args[0])
-		os.Exit(2)
+func getIntensityOfColor(c color.Color) uint8 {
+	r, _, _, _ := c.RGBA()
+
+	return uint8(r)
+}
+
+func binarySliceToHex(list []byte) string {
+	var sum byte
+
+	for _, n := range list {
+		sum *= 2
+		sum += n
 	}
 
+	return hex.EncodeToString([]byte{sum})
+}
+
+func Dhash(path string, size int) (string, error) {
 	// Read the image
-	image, err := imaging.Open(os.Args[1])
+	image, err := imaging.Open(path)
 
 	// Exit if could not read the image
 	if err != nil {
 		fmt.Println("Error loading the image: %s", err)
-		os.Exit(1)
+		return "", err
 	}
 
 	// Downscale to 9x8 and convert it to grayscale
-	downscaledImage := imaging.Grayscale(imaging.Resize(image, 9, 8, imaging.Lanczos))
+	downscaledImage := imaging.Grayscale(imaging.Resize(image, size+1, size, imaging.Lanczos))
 
-	fmt.Println(downscaledImage.Bounds())
+	bounds := downscaledImage.Bounds().Max
+	x := bounds.X
+	y := bounds.Y
+
+	intensityMap := make([]string, 8)
+
+	for i := 0; i < x; i++ {
+		line := make([]byte, 8)
+
+		for j := 0; j < y-1; j++ {
+			actual := getIntensityOfColor(downscaledImage.At(i, j))
+			next := getIntensityOfColor(downscaledImage.At(i, j+1))
+
+			var difference byte
+
+			if actual > next {
+				difference = 1
+			} else {
+				difference = 0
+			}
+
+			line = append(line, difference)
+		}
+
+		intensityMap = append(intensityMap, binarySliceToHex(line))
+	}
+
+	fmt.Println(strings.Join(intensityMap, ""))
+
+	return "", nil
 }

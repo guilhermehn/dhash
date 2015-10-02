@@ -2,24 +2,23 @@ package dhash
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/disintegration/imaging"
 	"image/color"
 	"strings"
 )
 
-func getIntensityOfColor(c color.Color) uint8 {
+func intensityOfColor(c color.Color) uint32 {
 	r, _, _, _ := c.RGBA()
 
-	return uint8(r)
+	return r
 }
 
-func binarySliceToHex(list []byte) string {
+func binarySliceToHex(slice []byte) string {
 	var sum byte
 
-	for _, n := range list {
+	for _, value := range slice {
 		sum *= 2
-		sum += n
+		sum += value
 	}
 
 	return hex.EncodeToString([]byte{sum})
@@ -31,25 +30,26 @@ func Dhash(path string, size int) (string, error) {
 
 	// Exit if could not read the image
 	if err != nil {
-		fmt.Println("Error loading the image: %s", err)
 		return "", err
 	}
 
 	// Downscale to 9x8 and convert it to grayscale
 	downscaledImage := imaging.Grayscale(imaging.Resize(image, size+1, size, imaging.Lanczos))
 
+	// Get the image bounds (size)
 	bounds := downscaledImage.Bounds().Max
-	x := bounds.X
-	y := bounds.Y
 
-	intensityMap := make([]string, 8)
+	// Create the intensity map
+	intensityMap := make([]string, 0, size)
 
-	for i := 0; i < x; i++ {
-		line := make([]byte, 8)
+	// Iterate through the lines
+	for i := 0; i < bounds.X-1; i++ {
+		line := make([]byte, 0, size)
 
-		for j := 0; j < y-1; j++ {
-			actual := getIntensityOfColor(downscaledImage.At(i, j))
-			next := getIntensityOfColor(downscaledImage.At(i, j+1))
+		// For each pixel until the penultimate
+		for j := 0; j < bounds.Y; j++ {
+			actual := intensityOfColor(downscaledImage.At(i, j))
+			next := intensityOfColor(downscaledImage.At(i+1, j))
 
 			var difference byte
 
@@ -65,7 +65,5 @@ func Dhash(path string, size int) (string, error) {
 		intensityMap = append(intensityMap, binarySliceToHex(line))
 	}
 
-	fmt.Println(strings.Join(intensityMap, ""))
-
-	return "", nil
+	return strings.Join(intensityMap, ""), nil
 }

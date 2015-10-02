@@ -1,20 +1,23 @@
 package dhash
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestDhash(t *testing.T) {
-	expectedHash := "4c8e3366c275650f"
-	resultHash, _ := Dhash("test.jpg", 8)
+	originalHash, err := Dhash("original.png", 8)
 
-	fmt.Println(Dhash("test.jpg", 8))
-	fmt.Println(Dhash("test.jpg", 8))
-	fmt.Println(Dhash("test.jpg", 8))
-	fmt.Println(Dhash("test.jpg", 8))
+	if err != nil {
+		t.Errorf("ERROR: %s", err.Error())
+	}
 
-	if resultHash != expectedHash {
-		t.Errorf("Test failed - Expected \"%s\" got \"%s\"", expectedHash, resultHash)
+	modifiedHash, err := Dhash("modified.png", 8)
+
+	if err != nil {
+		t.Errorf("ERROR: %s", err.Error())
+	}
+
+	if originalHash != modifiedHash {
+		t.Errorf("Test failed - Original: \"%s\" / Modified: \"%s\"", originalHash, modifiedHash)
 	}
 }

@@ -5,17 +5,21 @@ import (
 )
 
 func TestDhash(t *testing.T) {
-	originalHash, err := Dhash("original.png", 8)
+	size := 8
+
+	originalHash, err := Dhash("original.png", size)
 
 	if err != nil {
 		t.Errorf("ERROR: %s", err.Error())
 	}
 
-	modifiedHash, err := Dhash("modified.png", 8)
+	modifiedHash, err := Dhash("modified.png", size)
 
 	if err != nil {
 		t.Errorf("ERROR: %s", err.Error())
 	}
+
+	t.Logf("\nOriginal file hash: %s\nModified file hash: %s", originalHash, modifiedHash)
 
 	if originalHash != modifiedHash {
 		t.Errorf("Test failed - Original: \"%s\" / Modified: \"%s\"", originalHash, modifiedHash)

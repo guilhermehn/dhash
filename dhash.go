@@ -1,69 +1,50 @@
 package dhash
 
 import (
-	"encoding/hex"
 	"github.com/disintegration/imaging"
-	"image/color"
 	"strings"
 )
 
-func intensityOfColor(c color.Color) uint32 {
-	r, _, _, _ := c.RGBA()
-
-	return r
-}
-
-func binarySliceToHex(slice []byte) string {
-	var sum byte
-
-	for _, value := range slice {
-		sum *= 2
-		sum += value
-	}
-
-	return hex.EncodeToString([]byte{sum})
-}
-
+// Runs a difference hash algorithm on the image
+// and returns a hash string and a error if there
+// was one during the function execution
 func Dhash(path string, size int) (string, error) {
 	// Read the image
-	image, err := imaging.Open(path)
+	original, err := imaging.Open(path)
 
-	// Exit if could not read the image
+	// Return if could not read the image
 	if err != nil {
 		return "", err
 	}
 
-	// Downscale to 9x8 and convert it to grayscale
-	downscaledImage := imaging.Grayscale(imaging.Resize(image, size+1, size, imaging.Lanczos))
-
-	// Get the image bounds (size)
-	bounds := downscaledImage.Bounds().Max
+	// Downscale to (size+1)x(size) and convert it to grayscale
+	img := imaging.Grayscale(imaging.Resize(original, size+1, size, imaging.Lanczos))
 
 	// Create the intensity map
-	intensityMap := make([]string, 0, size)
+	intensities := make([]string, 0, size)
 
-	// Iterate through the lines
-	for i := 0; i < bounds.X-1; i++ {
+	// Iterate through the columns
+	for y := 0; y < size; y++ {
 		line := make([]byte, 0, size)
 
-		// For each pixel until the penultimate
-		for j := 0; j < bounds.Y; j++ {
-			actual := intensityOfColor(downscaledImage.At(i, j))
-			next := intensityOfColor(downscaledImage.At(i+1, j))
+		// For each pixel of the line until the penultimate
+		for x := 0; x < size; x++ {
+			a := intensityOfColor(img.At(x, y))
+			b := intensityOfColor(img.At(x+1, y))
 
-			var difference byte
+			var diff byte
 
-			if actual > next {
-				difference = 1
-			} else {
-				difference = 0
+			// If the actual pixel is lighter than
+			// the next one the diff should be 1
+			if a > b {
+				diff = 1
 			}
 
-			line = append(line, difference)
+			line = append(line, diff)
 		}
 
-		intensityMap = append(intensityMap, binarySliceToHex(line))
+		intensities = append(intensities, binarySliceToHex(line))
 	}
 
-	return strings.Join(intensityMap, ""), nil
+	return strings.Join(intensities, ""), nil
 }

@@ -7,7 +7,7 @@ import (
 
 // Runs a difference hash algorithm on the image
 // and returns a hash string and a error if there
-// was one during the function execution
+// was one during the function execution.
 func Dhash(path string, size int) (string, error) {
 	// Read the image
 	original, err := imaging.Open(path)

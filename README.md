@@ -2,21 +2,43 @@
 > dHash algorithm in Go
 
 ## Install
-~~~
+~~~ bash
 go get github.com/guilhermehn/dhash
+~~~
+Or with [gopkg](http://labix.org/gopkg.in):
+~~~ bash
+go get gopkg.in/guilhermehn/dhash.v1
 ~~~
 
 ## Usage
+Two parameters are needed: the path to the image and
+the size the image will be resized that will reflect
+into the hash final size. The recommended size is 8.
+
+~~~ go
+Dhash("image.jpg", 8)
+~~~
+
+The image will be resized to 8x8 and the hash
+size will be size*2 "8899aabbccddeeff"
+
+### Example:
+
 ~~~ go
 package main
 
 import (
   "fmt"
   "github.com/guilhermehn/dhash"
+  // or if you installed the gopkg version
+  // "gopkg.in/guilhermehn/dhash.v1"
 )
 
 func main() {
-  hash, err := dhash.Dhash("path/to/image", 8)
+  pathToImage := "path/to/image"
+  detailLevel := 8
+
+  hash, err := dhash.Dhash(pathToImage, detailLevel)
 
   if err != nil {
     fmt.Println("ERROR: %s", err.Error())

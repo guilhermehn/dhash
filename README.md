@@ -12,15 +12,15 @@ go get gopkg.in/guilhermehn/dhash.v1
 
 ## Usage
 Two parameters are needed: the path to the image and
-the size the image will be resized that will reflect
-into the hash final size. The recommended size is 8.
+the size that the image will be resized to, that will reflect
+into the hash size. **The recommended size is 8**.
 
 ~~~ go
 Dhash("image.jpg", 8)
 ~~~
 
 The image will be resized to 8x8 and the hash
-size will be size*2 "8899aabbccddeeff"
+size will be `size*2`: `"8899aabbccddeeff"`.
 
 ### Example:
 

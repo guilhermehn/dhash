@@ -1,6 +1,9 @@
 # dhash
 > dHash algorithm in Go
 
+[![GoDoc](https://godoc.org/github.com/guilhermehn/dhash?status.svg)](http://godoc.org/github.com/guilhermehn/dhash)
+[![Travis CI status](https://travis-ci.org/guilhermehn/dhash.svg "Travis CI Status")](https://travis-ci.org/guilhermehn/dhash)
+
 ## Install
 ~~~ bash
 go get github.com/guilhermehn/dhash
